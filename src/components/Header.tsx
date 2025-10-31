@@ -16,7 +16,7 @@ const Header = () => {
           <Link to="/" className="text-2xl font-bold text-primary">
             Vastra
           </Link>
-
+          
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
@@ -34,7 +34,7 @@ const Header = () => {
             <Link to="/blog" className="text-foreground hover:text-primary transition-colors font-medium">
               Blog
             </Link>
-            <Link to="/account/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
+            <Link to="/account/dashboard" className="text-foreground hover:text-primary transition-colors font-bold bg-primary/10 px-4 py-2 rounded-md">
               Dashboard
             </Link>
           </nav>
@@ -143,7 +143,7 @@ const Header = () => {
             </Link>
             <Link
               to="/account/dashboard"
-              className="text-foreground hover:text-primary transition-colors font-medium"
+              className="text-foreground hover:text-primary transition-colors font-bold bg-primary/10 px-4 py-2 rounded-md"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Dashboard
