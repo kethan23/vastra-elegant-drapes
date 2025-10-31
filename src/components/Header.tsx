@@ -1,38 +1,24 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { Search, ShoppingCart, User, Menu, X, Heart, LogOut } from "lucide-react";
-import logo from "@/assets/logo.jpg";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { useCart } from "@/contexts/CartContext";
-import { useWishlist } from "@/contexts/WishlistContext";
-import { useAuth } from "@/contexts/AuthContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Menu, X, ShoppingBag, User } from "lucide-react";
+import { useAuth } from "../contexts/AuthContext";
+import { useCart } from "../contexts/CartContext";
 
 const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const { cartCount } = useCart();
-  const { wishlistCount } = useWishlist();
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
+  const { items } = useCart();
 
   return (
-    <header className="bg-background border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-background/95">
-      <div className="container mx-auto px-6 py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3">
-            <img src={logo} alt="Vastra Logo" className="h-12 w-12 object-contain" />
-            <h1 className="text-2xl md:text-3xl font-playfair font-semibold text-foreground">
-              Vastra
-            </h1>
+    <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="text-2xl font-bold text-primary">
+            Vastra
           </Link>
-          
-          <nav className="hidden lg:flex gap-8">
+
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-8">
             <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
               Home
             </Link>
@@ -48,93 +34,76 @@ const Header = () => {
             <Link to="/blog" className="text-foreground hover:text-primary transition-colors font-medium">
               Blog
             </Link>
+            <Link to="/account/dashboard" className="text-foreground hover:text-primary transition-colors font-medium">
+              Dashboard
+            </Link>
           </nav>
-          
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(!isSearchOpen)}
-              className="hidden md:flex"
-            >
-              <Search className="h-5 w-5" />
-            </Button>
 
-            <Link to="/account/wishlist">
-              <Button variant="ghost" size="icon" className="relative">
-                <Heart className="h-5 w-5" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {wishlistCount}
-                  </span>
-                )}
-              </Button>
+          {/* Right side icons */}
+          <div className="flex items-center gap-4">
+            <Link to="/cart" className="relative text-foreground hover:text-primary transition-colors">
+              <ShoppingBag size={20} />
+              {items.length > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {items.length}
+                </span>
+              )}
             </Link>
 
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <User className="h-5 w-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link to="/account/dashboard" className="w-full cursor-pointer">
+              <div className="relative group">
+                <button className="text-foreground hover:text-primary transition-colors">
+                  <User size={20} />
+                </button>
+                <div className="absolute right-0 mt-2 w-48 bg-background border border-border rounded-lg shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                  <div className="p-4 border-b border-border">
+                    <p className="font-medium">{user.name}</p>
+                    <p className="text-sm text-muted-foreground">{user.email}</p>
+                  </div>
+                  <nav className="py-2">
+                    <Link
+                      to="/account/dashboard"
+                      className="block px-4 py-2 text-foreground hover:bg-accent transition-colors"
+                    >
                       Dashboard
                     </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link to="/account/orders" className="w-full cursor-pointer">
+                    <Link
+                      to="/account/orders"
+                      className="block px-4 py-2 text-foreground hover:bg-accent transition-colors"
+                    >
                       Orders
                     </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={signOut} className="cursor-pointer">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <Link
+                      to="/account/settings"
+                      className="block px-4 py-2 text-foreground hover:bg-accent transition-colors"
+                    >
+                      Settings
+                    </Link>
+                    <button
+                      onClick={logout}
+                      className="w-full text-left px-4 py-2 text-foreground hover:bg-accent transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </nav>
+                </div>
+              </div>
             ) : (
-              <Link to="/account/login">
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                </Button>
+              <Link to="/login" className="text-foreground hover:text-primary transition-colors">
+                <User size={20} />
               </Link>
             )}
-            
-            <Link to="/cart">
-              <Button variant="ghost" size="icon" className="relative">
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {cartCount}
-                  </span>
-                )}
-              </Button>
-            </Link>
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden"
+
+            <button
+              className="lg:hidden text-foreground"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
-        
-        {isSearchOpen && (
-          <div className="mt-4 animate-fade-in">
-            <Input
-              type="search"
-              placeholder="Search for sarees..."
-              className="max-w-md"
-            />
-          </div>
-        )}
-        
+
+        {/* Mobile Navigation */}
         {isMobileMenuOpen && (
           <nav className="lg:hidden mt-4 pb-4 flex flex-col gap-4 animate-fade-in">
             <Link
@@ -171,6 +140,13 @@ const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Blog
+            </Link>
+            <Link
+              to="/account/dashboard"
+              className="text-foreground hover:text-primary transition-colors font-medium"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Dashboard
             </Link>
           </nav>
         )}
