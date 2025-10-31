@@ -9,11 +9,11 @@ const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
 
-  React.useEffect(() => {
-    if (!loading && !user) {
-      navigate('/account/login');
-    }
-  }, [user, loading, navigate]);
+  // React.useEffect(() => {
+  //   if (!loading && !user) {
+  //     navigate('/account/login');
+  //   }
+  // }, [user, loading, navigate]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -114,6 +114,7 @@ const Dashboard = () => {
 
   return (
     <Layout>
+      <div style={{ color: 'red', fontSize: '24px' }}>DASHBOARD TEST VISIBLE</div>
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -130,7 +131,7 @@ const Dashboard = () => {
           {kpis.map((kpi, index) => {
             const Icon = kpi.icon;
             return (
-              <Card key={index} className="p-6">
+              <Card className="p-6" key={index}>
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600 mb-1">
