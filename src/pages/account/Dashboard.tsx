@@ -1,80 +1,112 @@
-import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import Layout from "@/components/Layout";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Package, Heart, User, MapPin, LogOut, Filter } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from '@/components/Layout';
+import { Card } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { ShoppingCart, Users, DollarSign } from 'lucide-react';
 
 const Dashboard = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const [recentOrders, setRecentOrders] = useState<any[]>([]);
-  const [loadingOrders, setLoadingOrders] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [paymentFilter, setPaymentFilter] = useState<string>("all");
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!loading && !user) {
-      navigate("/account/login");
+      navigate('/account/login');
     }
   }, [user, loading, navigate]);
 
-  useEffect(() => {
-    const fetchRecentOrders = async () => {
-      if (!user) return;
-      
-      try {
-        let query = supabase
-          .from("orders")
-          .select("*")
-          .eq("user_id", user.id);
-
-        if (statusFilter !== "all") {
-          query = query.eq("status", statusFilter);
-        }
-
-        if (paymentFilter !== "all") {
-          query = query.eq("payment_status", paymentFilter);
-        }
-
-        const { data, error } = await query
-          .order("created_at", { ascending: false })
-          .limit(3);
-
-        if (error) throw error;
-        setRecentOrders(data || []);
-      } catch (error) {
-        console.error("Error fetching orders:", error);
-      } finally {
-        setLoadingOrders(false);
-      }
-    };
-
-    if (user) {
-      fetchRecentOrders();
-    }
-  }, [user, statusFilter, paymentFilter]);
-
   const handleSignOut = async () => {
     await signOut();
-    navigate("/");
+    navigate('/account/login');
+  };
+
+  // Sample KPI data
+  const kpis = [
+    {
+      title: 'Total Orders',
+      value: '1,234',
+      icon: ShoppingCart,
+      change: '+12.5%',
+      changeType: 'positive',
+    },
+    {
+      title: 'Active Users',
+      value: '856',
+      icon: Users,
+      change: '+8.2%',
+      changeType: 'positive',
+    },
+    {
+      title: 'Revenue',
+      value: '₹45,678',
+      icon: DollarSign,
+      change: '+15.3%',
+      changeType: 'positive',
+    },
+  ];
+
+  // Sample recent orders data
+  const recentOrders = [
+    {
+      id: 'ORD-001',
+      customer: 'Rajesh Kumar',
+      product: 'Silk Saree',
+      amount: '₹3,500',
+      status: 'Completed',
+      date: '2025-10-30',
+    },
+    {
+      id: 'ORD-002',
+      customer: 'Priya Sharma',
+      product: 'Cotton Curtains',
+      amount: '₹1,200',
+      status: 'Processing',
+      date: '2025-10-30',
+    },
+    {
+      id: 'ORD-003',
+      customer: 'Amit Patel',
+      product: 'Designer Drapes',
+      amount: '₹4,800',
+      status: 'Shipped',
+      date: '2025-10-29',
+    },
+    {
+      id: 'ORD-004',
+      customer: 'Sneha Reddy',
+      product: 'Embroidered Fabric',
+      amount: '₹2,300',
+      status: 'Completed',
+      date: '2025-10-29',
+    },
+    {
+      id: 'ORD-005',
+      customer: 'Vikram Singh',
+      product: 'Velvet Curtains',
+      amount: '₹5,600',
+      status: 'Processing',
+      date: '2025-10-28',
+    },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Completed':
+        return 'bg-green-100 text-green-800';
+      case 'Processing':
+        return 'bg-blue-100 text-blue-800';
+      case 'Shipped':
+        return 'bg-purple-100 text-purple-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   if (loading) {
     return (
       <Layout>
-        <div className="container mx-auto px-6 py-16">
-          <div className="text-center">Loading...</div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-lg">Loading...</div>
         </div>
       </Layout>
     );
@@ -82,154 +114,107 @@ const Dashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-6 py-16">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex justify-between items-center mb-12">
-            <div>
-              <h1 className="text-4xl font-playfair font-bold text-foreground mb-2">
-                My Account
-              </h1>
-              <p className="text-muted-foreground">
-                Welcome back! Manage your account and orders here.
-              </p>
-            </div>
-            <Button onClick={handleSignOut} variant="outline">
-              <LogOut className="w-4 h-4 mr-2" />
-              Sign Out
-            </Button>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-            <Link to="/account/orders">
-              <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <Package className="w-8 h-8 text-primary mb-4" />
-                <h3 className="font-semibold mb-2">Orders</h3>
-                <p className="text-sm text-muted-foreground">View order history</p>
-              </Card>
-            </Link>
-
-            <Link to="/account/wishlist">
-              <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <Heart className="w-8 h-8 text-primary mb-4" />
-                <h3 className="font-semibold mb-2">Wishlist</h3>
-                <p className="text-sm text-muted-foreground">Saved items</p>
-              </Card>
-            </Link>
-
-            <Link to="/account/profile">
-              <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <User className="w-8 h-8 text-primary mb-4" />
-                <h3 className="font-semibold mb-2">Profile</h3>
-                <p className="text-sm text-muted-foreground">Edit your details</p>
-              </Card>
-            </Link>
-
-            <Link to="/account/addresses">
-              <Card className="p-6 hover:shadow-lg transition-shadow cursor-pointer h-full">
-                <MapPin className="w-8 h-8 text-primary mb-4" />
-                <h3 className="font-semibold mb-2">Addresses</h3>
-                <p className="text-sm text-muted-foreground">Manage shipping</p>
-              </Card>
-            </Link>
-          </div>
-
-          {/* Recent Orders */}
-          <Card className="p-8">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-              <h2 className="text-2xl font-playfair font-bold">Recent Orders</h2>
-              
-              <div className="flex flex-wrap gap-3 items-center">
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-muted-foreground" />
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-[140px]">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Status</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                      <SelectItem value="delivered">Delivered</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Payment" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Payment</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {recentOrders.length > 0 && (
-                  <Link to="/account/orders">
-                    <Button variant="outline" size="sm">View All</Button>
-                  </Link>
-                )}
-              </div>
-            </div>
-            
-            {loadingOrders ? (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground">Loading orders...</p>
-              </div>
-            ) : recentOrders.length === 0 ? (
-              <div className="text-center py-12">
-                <Package className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">You haven't placed any orders yet</p>
-                <Link to="/collections">
-                  <Button>Start Shopping</Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {recentOrders.map((order) => (
-                  <div key={order.id} className="border rounded-lg p-4 hover:bg-muted/50 transition">
-                    <div className="flex justify-between items-start mb-2">
-                      <div>
-                        <p className="font-semibold">Order #{order.id.slice(0, 8)}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(order.created_at).toLocaleDateString('en-IN', {
-                            day: 'numeric',
-                            month: 'long',
-                            year: 'numeric'
-                          })}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">₹{order.total_amount.toLocaleString()}</p>
-                        <Badge variant={
-                          order.status === 'delivered' ? 'default' :
-                          order.status === 'processing' ? 'secondary' :
-                          order.status === 'shipped' ? 'secondary' :
-                          'outline'
-                        }>
-                          {order.status}
-                        </Badge>
-                      </div>
-                    </div>
-                    <div className="flex justify-between items-center text-sm">
-                      <span className="text-muted-foreground">
-                        Payment: {order.payment_status}
-                      </span>
-                      <Link to="/account/orders">
-                        <Button variant="ghost" size="sm">View Details</Button>
-                      </Link>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </Card>
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {user?.email?.split('@')[0] || 'Admin'}!
+          </h1>
+          <p className="text-gray-600">
+            Here's what's happening with your store today.
+          </p>
         </div>
+
+        {/* KPI Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {kpis.map((kpi, index) => {
+            const Icon = kpi.icon;
+            return (
+              <Card key={index} className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-600 mb-1">
+                      {kpi.title}
+                    </p>
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {kpi.value}
+                    </h3>
+                    <p className="text-sm text-green-600 mt-2">
+                      {kpi.change} from last month
+                    </p>
+                  </div>
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <Icon className="h-6 w-6 text-primary" />
+                  </div>
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+
+        {/* Recent Orders Table */}
+        <Card className="p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-4">
+            Recent Orders
+          </h2>
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-gray-200">
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                    Order ID
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                    Customer
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                    Product
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                    Amount
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-4 font-semibold text-gray-700">
+                    Date
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentOrders.map((order, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-100 hover:bg-gray-50"
+                  >
+                    <td className="py-3 px-4 text-gray-900 font-medium">
+                      {order.id}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {order.customer}
+                    </td>
+                    <td className="py-3 px-4 text-gray-700">
+                      {order.product}
+                    </td>
+                    <td className="py-3 px-4 text-gray-900 font-medium">
+                      {order.amount}
+                    </td>
+                    <td className="py-3 px-4">
+                      <span
+                        className={`inline-block px-3 py-1 rounded-full text-xs font-medium ${
+                          getStatusColor(order.status)
+                        }`}
+                      >
+                        {order.status}
+                      </span>
+                    </td>
+                    <td className="py-3 px-4 text-gray-600">{order.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
       </div>
     </Layout>
   );
