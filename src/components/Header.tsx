@@ -34,9 +34,6 @@ const Header = () => {
             <Link to="/blog" className="text-foreground hover:text-primary transition-colors font-medium">
               Blog
             </Link>
-            <Link to="/account/dashboard" className="text-foreground hover:text-primary transition-colors font-bold bg-primary/10 px-4 py-2 rounded-md">
-              Dashboard
-            </Link>
           </nav>
 
           {/* Right side icons */}
@@ -61,12 +58,6 @@ const Header = () => {
                     <p className="text-sm text-muted-foreground">{user.email}</p>
                   </div>
                   <nav className="py-2">
-                    <Link
-                      to="/account/dashboard"
-                      className="block px-4 py-2 text-foreground hover:bg-accent transition-colors"
-                    >
-                      Dashboard
-                    </Link>
                     <Link
                       to="/account/orders"
                       className="block px-4 py-2 text-foreground hover:bg-accent transition-colors"
@@ -140,13 +131,6 @@ const Header = () => {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Blog
-            </Link>
-            <Link
-              to="/account/dashboard"
-              className="text-foreground hover:text-primary transition-colors font-bold bg-primary/10 px-4 py-2 rounded-md"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Dashboard
             </Link>
           </nav>
         )}
